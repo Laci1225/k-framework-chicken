@@ -1,8 +1,12 @@
-module CHICKEN-SYNTAX
-    imports INT
+    module CHICKEN-SYNTAX
+        imports INT
+        imports LIST
 
-    syntax Token ::= "chicken" [token]
-    syntax Chickens ::= Token Chickens | Token | ".Empty"
-    syntax Line ::= Chickens
-    syntax Program ::= Line
-endmodule
+        syntax Token ::= "chicken" [token]
+        syntax NL ::= "n" [token]
+        syntax Chickens ::= Token Chickens | Token | ".Empty"
+        syntax Line ::= Chickens NL
+        syntax Program ::= Line | Program Line
+
+
+    endmodule

@@ -13,8 +13,12 @@ module CHICKEN
          <stack> .List </stack>
          <pc> 0 </pc>
     </T>
-    rule <k> (C:Chickens) => chickensToOp(C) ~> .K ... </k>
-         <pc> PC => PC +Int 1 </pc>
+
+     rule <k> P:Program L:Line => P ~> L ... </k>
+     rule <k> C:Chickens n => chickensToOp(C) ... </k>
+          <pc> PC => PC +Int 1 </pc>
+
+
 
     rule <k> PUSH_ONE => .K ... </k>
          <stack> S => ListItem(1) S </stack>
