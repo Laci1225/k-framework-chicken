@@ -15,7 +15,7 @@ module CHICKEN
     </T>
 
      rule <k> P:Program L:Line => P ~> L ... </k>
-     rule <k> C:Chickens n => chickensToOp(C) ... </k>
+     rule <k> C:Chickens ; => chickensToOp(C) ... </k>
           <pc> PC => PC +Int 1 </pc>
 
 
@@ -30,10 +30,13 @@ module CHICKEN
          <stack> ListItem(A:Int) ListItem(B:Int) S => ListItem(A +Int B) S </stack>
 
     rule <k> SUB => .K ... </k>
-         <stack> ListItem(A:Int) ListItem(B:Int) S => ListItem(B -Int A) S </stack>
+         <stack> ListItem(A:Int) ListItem(B:Int) S => ListItem(A -Int B) S </stack>
 
     rule <k> MUL => .K ... </k>
          <stack> ListItem(A:Int) ListItem(B:Int) S => ListItem(A *Int B) S </stack>
+
+        rule <k> CHAR => .K ... </k>
+             <stack> ListItem(A:Int) S => ListItem(chrChar(A)) S </stack>
 
     syntax Int ::= countChickens(Chickens) [function]
     rule countChickens(.Empty) => 0
