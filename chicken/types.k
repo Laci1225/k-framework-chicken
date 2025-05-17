@@ -5,7 +5,7 @@ module CHICKEN-TYPES
   syntax Op ::= "PUSH_ONE" | "ADD" | "SUB" | "MUL" | "EQ"
                   | "LOAD" | "STORE" | "JUMP" | "CHAR" | PushInt
   syntax PushInt ::= "PUSH" Int
-  syntax String ::= chrChar(Int) [function, hook(STRING.chr)]
+  //syntax String ::= chrChar(Int) [function, hook(STRING.chr)]
 
 
   syntax Op ::= intToOp(Int) [function]
