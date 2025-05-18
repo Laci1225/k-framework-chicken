@@ -57,6 +57,34 @@ module CHICKEN
                     andBool getOp(OPS, I +Int 1) ==K CHICKEN
              [priority(50)]
 
+     rule <k> .K </k>
+          <ip> I => I +Int OFFSET </ip>
+          <program> OPS </program>
+          <stack> ListItem(OFFSET:Int) ListItem(CONDITION:Bool) REST => REST </stack>
+       requires I <Int size(OPS)
+            andBool getOp(OPS, I) ==K JUMP
+            andBool CONDITION ==Bool true
+       [priority(45)]
+
+
+     rule <k> .K </k>
+          <ip> I => I +Int 1 </ip>
+          <program> OPS </program>
+          <stack> ListItem(_) ListItem(CONDITION:Bool) REST => REST </stack>
+       requires I <Int size(OPS)
+            andBool getOp(OPS, I) ==K JUMP
+            andBool CONDITION ==Bool false
+       [priority(45)]
+
+
+    //rule <k> .K </k>
+    //     <ip> I => #if isTruthy(COND) #then I +Int OFFSET #else I +Int 1 #fi </ip>
+    //     <program> OPS </program>
+    //     <stack> ListItem(OFFSET:Int) ListItem(COND:StackVal) REST => REST </stack>
+    //     requires I <Int size(OPS)
+    //           andBool getOp(OPS, I) ==K JUMP
+    //     [priority(45)]
+
     rule <k> .K </k>
              <ip> I => I +Int 1 </ip>
              <program> OPS </program>
@@ -66,6 +94,7 @@ module CHICKEN
                                 #else OUT #fi </output>
           requires I <Int size(OPS)
                   andBool getOp(OPS, I) =/=K LOAD
+                  andBool getOp(OPS, I) =/=K JUMP
                  [priority(40)]
 
 
@@ -108,7 +137,6 @@ module CHICKEN
     rule execute(STORE, ListItem(I:Int) ListItem(V:StackVal) REST)
               => updateAtIndex(REST, I, V)
               requires I >=Int 0 andBool I <Int size(REST)
-    rule execute(JUMP, S) => S
     rule execute(CHAR, ListItem(A:Int) S) => ListItem(chrChar(A)) S
 
 
