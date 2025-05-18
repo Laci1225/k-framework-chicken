@@ -42,7 +42,7 @@ module CHICKEN
               <stack> ListItem(Ix:Int) REST => ListItem(getInt(REST, Ix)) removeAt(REST, Ix) </stack>
               requires I <Int size(OPS)
                     andBool getOp(OPS, I) ==K LOAD
-                    andBool getOp(OPS, I +Int 1) ==K PUSH 0
+                    andBool getOp(OPS, I +Int 1) ==K EXIT
              [priority(50)]
 
     // LOAD from input (source 1)
@@ -60,7 +60,7 @@ module CHICKEN
     rule <k> .K </k>
              <ip> I => I +Int 1 </ip>
              <program> OPS </program>
-              <stack> S => execute(getOp(OPS, I), S) </stack>
+             <stack> S => execute(getOp(OPS, I), S) </stack>
              <output> OUT => #if getOp(OPS, I) ==K CHAR
                                 #then OUT +String chrChar(getInt(S, 0))
                                 #else OUT #fi </output>
@@ -78,7 +78,7 @@ module CHICKEN
     rule convertToOps(.ChickenList) => .List
     rule convertToOps((C:Chickens ;) CL:ChickenList) => ListItem(chickensToOp(C)) convertToOps(CL)
 
-    syntax List ::= updateAtIndex(List, Int, Int) [function]
+    syntax List ::= updateAtIndex(List, Int, StackVal) [function]
     rule updateAtIndex(.List, _, _) => .List
     rule updateAtIndex(ListItem(_) REST, 0, V) => ListItem(V) REST
     rule updateAtIndex(ListItem(H) REST, I, V)
@@ -91,6 +91,8 @@ module CHICKEN
     rule getOp(L:List, I:Int) => {L[I]}:>Op
     rule getInt(L:List, I:Int) => {L[I]}:>Int
 
+    syntax StackVal ::= Int | String
+
     syntax List ::= execute(Op, List) [function]
     rule execute(CHICKEN, S) => ListItem("chicken") S
     rule execute(PUSH N:Int, S) => ListItem(N) S
@@ -98,9 +100,9 @@ module CHICKEN
     rule execute(SUB, ListItem(A:Int) ListItem(B:Int) S) => ListItem(B -Int A) S // A -Int B?
     rule execute(MUL, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A *Int B) S
     rule execute(EQ, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A ==Int B) S
-    rule execute(STORE, ListItem(I:Int) ListItem(V:Int) REST)
-      => updateAtIndex(REST, I, V)
-      requires I >=Int 0 andBool I <Int size(REST)
+    rule execute(STORE, ListItem(I:Int) ListItem(V:StackVal) REST)
+              => updateAtIndex(REST, I, V)
+              requires I >=Int 0 andBool I <Int size(REST)
     rule execute(JUMP, S) => S
     rule execute(CHAR, ListItem(A:Int) S) => ListItem(chrChar(A)) S
 
