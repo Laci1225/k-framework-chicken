@@ -29,6 +29,22 @@ module CHICKEN
 
     syntax String ::= opToString(Op)  [function, total, hook(STRING.token2string)]
 
+    syntax List ::= removeAt(List, Int) [function]
+    rule removeAt(ListItem(_) REST, 0) => REST
+    rule removeAt(ListItem(HEAD) TAIL, Ix) => ListItem(HEAD) removeAt(TAIL, Ix -Int 1)
+            requires Ix >Int 0
+
+    // LOAD from stack (source 0)
+     rule <k> .K </k>
+              <ip> I => I +Int 2 </ip>
+              <program> OPS </program>
+             <output> OUT => OUT +String "Load stack[" +String Int2String(Ix) +String "]" </output>
+              <stack> ListItem(Ix:Int) REST => ListItem(getInt(REST, Ix)) removeAt(REST, Ix) </stack>
+              requires I <Int size(OPS)
+                    andBool getOp(OPS, I) ==K LOAD
+                    andBool getOp(OPS, I +Int 1) ==K PUSH 0
+             [priority(50)]
+
     // LOAD from input (source 1)
      rule <k> .K </k>
               <ip> I => I +Int 2 </ip>
