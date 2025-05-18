@@ -38,8 +38,8 @@ module CHICKEN
      rule <k> .K </k>
               <ip> I => I +Int 2 </ip>
               <program> OPS </program>
-             <output> OUT => OUT +String "Load stack[" +String Int2String(Ix) +String "]" </output>
-              <stack> ListItem(Ix:Int) REST => ListItem(getInt(REST, Ix)) removeAt(REST, Ix) </stack>
+              <output> OUT => OUT +String "Load stack[" +String Int2String(Ix) +String "]" </output>
+              <stack> ListItem(Ix:Int) REST => ListItem(getStackVal(REST, Ix)) removeAt(REST, Ix) </stack>
               requires I <Int size(OPS)
                     andBool getOp(OPS, I) ==K LOAD
                     andBool getOp(OPS, I +Int 1) ==K EXIT
@@ -92,14 +92,19 @@ module CHICKEN
     rule getInt(L:List, I:Int) => {L[I]}:>Int
 
     syntax StackVal ::= Int | String
+    syntax StackVal ::= getStackVal(List, Int) [function]
+    rule getStackVal(ListItem(V:StackVal) _, 0) => V
+    rule getStackVal(ListItem(_) TAIL, I) => getStackVal(TAIL, I -Int 1)
+         requires I >Int 0
 
     syntax List ::= execute(Op, List) [function]
     rule execute(CHICKEN, S) => ListItem("chicken") S
     rule execute(PUSH N:Int, S) => ListItem(N) S
-    rule execute(ADD, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A +Int B) S
+    rule execute(ADD, ListItem(A:Int) ListItem(B:Int) S) => ListItem(B +Int A) S
+    rule execute(ADD, ListItem(A:String) ListItem(B:String) S) => ListItem(B +String A) S
     rule execute(SUB, ListItem(A:Int) ListItem(B:Int) S) => ListItem(B -Int A) S // A -Int B?
-    rule execute(MUL, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A *Int B) S
-    rule execute(EQ, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A ==Int B) S
+    rule execute(MUL, ListItem(A:Int) ListItem(B:Int) S) => ListItem(B *Int A) S
+    rule execute(EQ, ListItem(A:Int) ListItem(B:Int) S) => ListItem(B ==Int A) S
     rule execute(STORE, ListItem(I:Int) ListItem(V:StackVal) REST)
               => updateAtIndex(REST, I, V)
               requires I >=Int 0 andBool I <Int size(REST)
