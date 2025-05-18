@@ -19,13 +19,32 @@ module CHICKEN
                <output> "" </output>
                <running> true </running>
                <program> .List </program>
-               <input> .List </input>
+               <input> ListItem(1) </input>
 
            </state>
        </T>
 
     rule <k> CL:ChickenList => .K ...</k>
              <program> _ => convertToOps(CL) </program>
+
+    syntax String ::= opToString(Op)  [function, total, hook(STRING.token2string)]
+
+    // LOAD from input (source 1)
+     rule <k> .K </k>
+              <ip> I => I +Int 1 </ip>
+              <program> OPS </program>
+              //<stack> S => ListItem(0) S </stack>
+              <output> OUT => OUT +String "Input: " +String Int2String(getInt(INList, Ix)) </output>
+              <stack> ListItem(Ix:Int) S => ListItem(getInt(INList, Ix)) S </stack>
+              <input> INList </input>
+              //<output> OUT => OUT +String "Input: " </output>// +String Int2String(getInt(INList, 0)) </output>
+              //<input> INList </input> // getInt(INList, 0)
+              requires I <Int size(OPS)
+                    andBool getOp(OPS, I) ==K LOAD
+             //requires //I +Int 1 <Int size(OPS)
+               //      getOp(OPS, I) ==K LOAD
+                    //andBool getOp(OPS, I +Int 1) ==K CHICKEN
+             [priority(50)]
 
     rule <k> .K </k>
              <ip> I => I +Int 1 </ip>
@@ -35,32 +54,13 @@ module CHICKEN
                                 #then OUT +String chrChar(getInt(S, 0))
                                 #else OUT #fi </output>
           requires I <Int size(OPS)
+                  andBool getOp(OPS, I) =/=K LOAD
                  [priority(40)]
 
 
-    rule <k> .K </k>
-             <ip> I => I +Int 2 </ip>
-             <program> OPS </program>
-             <stack> ListItem(INDEX:Int) STACK => ListItem({STACK[INDEX]}:>Int) STACK </stack>
-          requires I +Int 1 <Int size(OPS)
-                   andBool getOp(OPS, I) ==K LOAD
-                   andBool getOp(OPS, I +Int 1) ==K PUSH 0
-                   andBool INDEX >=Int 0
-                   andBool INDEX <Int size(STACK)
-                 [priority(50)]
 
 
-        // LOAD from input (source 1)
-        rule <k> .K </k>
-                 <ip> I => I +Int 2 </ip>
-                 <program> OPS </program>
-                 <input> ListItem(IN:Int) REST => REST </input>
-                 <output> OUT => OUT +String "Input: " +String Int2String(IN) </output>
-                 <stack> S => ListItem(IN) S </stack>
-                requires I +Int 1 <Int size(OPS)
-                       andBool getOp(OPS, I) ==K LOAD
-                       andBool getOp(OPS, I +Int 1) ==K PUSH 1
-                [priority(50)]
+
 
 
     syntax List ::= convertToOps(ChickenList) [function]
@@ -81,13 +81,13 @@ module CHICKEN
     rule getInt(L:List, I:Int) => {L[I]}:>Int
 
     syntax List ::= execute(Op, List) [function]
-    rule execute(PUSH_ONE, S) => ListItem("chicken") S
+//    rule execute(CHICKEN, S) => ListItem("chicken") S
     rule execute(PUSH N:Int, S) => ListItem(N) S
     rule execute(ADD, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A +Int B) S
     rule execute(SUB, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A -Int B) S // B -Int A?
     rule execute(MUL, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A *Int B) S
     rule execute(EQ, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A ==Int B) S
-    rule execute(LOAD, S) =>  S [owise]
+//    rule execute(LOAD, S) =>  S [owise]
     rule execute(STORE, ListItem(I:Int) ListItem(V:Int) REST)
       => updateAtIndex(REST, I, V)
       requires I >=Int 0 andBool I <Int size(REST)

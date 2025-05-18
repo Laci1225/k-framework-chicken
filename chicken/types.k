@@ -2,14 +2,15 @@ requires "syntax.k"
 
 module CHICKEN-TYPES
   imports INT
-  syntax Op ::= "PUSH_ONE" | "ADD" | "SUB" | "MUL" | "EQ"
+  syntax Op ::= "EXIT" | "CHICKEN" | "ADD" | "SUB" | "MUL" | "EQ"
                   | "LOAD" | "STORE" | "JUMP" | "CHAR" | PushInt
   syntax PushInt ::= "PUSH" Int
   //syntax String ::= chrChar(Int) [function, hook(STRING.chr)]
 
 
   syntax Op ::= intToOp(Int) [function]
-  rule intToOp(1) => PUSH_ONE
+  rule intToOp(0) => EXIT
+  rule intToOp(1) => CHICKEN
   rule intToOp(2) => ADD
   rule intToOp(3) => SUB
   rule intToOp(4) => MUL
