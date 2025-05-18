@@ -19,7 +19,7 @@ module CHICKEN
                <output> "" </output>
                <running> true </running>
                <program> .List </program>
-               <input> ListItem(1) </input>
+               <input> ListItem(1) ListItem(0) ListItem(2) </input>
 
            </state>
        </T>
@@ -31,19 +31,14 @@ module CHICKEN
 
     // LOAD from input (source 1)
      rule <k> .K </k>
-              <ip> I => I +Int 1 </ip>
+              <ip> I => I +Int 2 </ip>
               <program> OPS </program>
-              //<stack> S => ListItem(0) S </stack>
               <output> OUT => OUT +String "Input: " +String Int2String(getInt(INList, Ix)) </output>
               <stack> ListItem(Ix:Int) S => ListItem(getInt(INList, Ix)) S </stack>
               <input> INList </input>
-              //<output> OUT => OUT +String "Input: " </output>// +String Int2String(getInt(INList, 0)) </output>
-              //<input> INList </input> // getInt(INList, 0)
               requires I <Int size(OPS)
                     andBool getOp(OPS, I) ==K LOAD
-             //requires //I +Int 1 <Int size(OPS)
-               //      getOp(OPS, I) ==K LOAD
-                    //andBool getOp(OPS, I +Int 1) ==K CHICKEN
+                    andBool getOp(OPS, I +Int 1) ==K CHICKEN
              [priority(50)]
 
     rule <k> .K </k>
@@ -81,13 +76,12 @@ module CHICKEN
     rule getInt(L:List, I:Int) => {L[I]}:>Int
 
     syntax List ::= execute(Op, List) [function]
-//    rule execute(CHICKEN, S) => ListItem("chicken") S
+    rule execute(CHICKEN, S) => ListItem("chicken") S
     rule execute(PUSH N:Int, S) => ListItem(N) S
     rule execute(ADD, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A +Int B) S
-    rule execute(SUB, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A -Int B) S // B -Int A?
+    rule execute(SUB, ListItem(A:Int) ListItem(B:Int) S) => ListItem(B -Int A) S // A -Int B?
     rule execute(MUL, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A *Int B) S
     rule execute(EQ, ListItem(A:Int) ListItem(B:Int) S) => ListItem(A ==Int B) S
-//    rule execute(LOAD, S) =>  S [owise]
     rule execute(STORE, ListItem(I:Int) ListItem(V:Int) REST)
       => updateAtIndex(REST, I, V)
       requires I >=Int 0 andBool I <Int size(REST)
