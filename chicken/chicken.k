@@ -19,7 +19,7 @@ module CHICKEN
                <output> "" </output>
                <running> true </running>
                <program> .List </program>
-               <input> ListItem(1) ListItem(0) ListItem(2) </input>
+               <input> "1+2" </input>
 
            </state>
        </T>
@@ -45,17 +45,30 @@ module CHICKEN
                     andBool getOp(OPS, I +Int 1) ==K EXIT
              [priority(50)]
 
+     syntax Int ::= getCharAt(String, Int) [function]
+     rule getCharAt(S, I) => String2Int(substrString(S, I, I +Int 1)) requires I >=Int 0 andBool I <Int lengthString(S)
+
     // LOAD from input (source 1)
      rule <k> .K </k>
               <ip> I => I +Int 2 </ip>
               <program> OPS </program>
-              <output> OUT => OUT +String "Input: " +String Int2String(getInt(INList, Ix)) </output>
-              <stack> ListItem(Ix:Int) S => ListItem(getInt(INList, Ix)) S </stack>
-              <input> INList </input>
+              <output> OUT => OUT +String "Input[" +String Int2String(Ix) +String "] = " +String chrChar(getCharAt(INPUT, Ix)) </output>
+              <stack> ListItem(Ix:Int) S => ListItem(getCharAt(INPUT, Ix)) S </stack>
+              <input> INPUT </input>
               requires I <Int size(OPS)
                     andBool getOp(OPS, I) ==K LOAD
                     andBool getOp(OPS, I +Int 1) ==K CHICKEN
              [priority(50)]
+
+    // Skip LOAD if not followed by 0 (EXIT) or 1 (CHICKEN)
+    rule <k> .K </k>
+         <ip> I => I +Int 2 </ip>
+         <program> OPS </program>
+         requires I <Int size(OPS)
+              andBool getOp(OPS, I) ==K LOAD
+              andBool getOp(OPS, I +Int 1) =/=K EXIT
+              andBool getOp(OPS, I +Int 1) =/=K CHICKEN
+         [priority(55)]
 
      rule <k> .K </k>
           <ip> I => I +Int OFFSET </ip>
